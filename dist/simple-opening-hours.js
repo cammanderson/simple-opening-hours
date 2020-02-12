@@ -31,9 +31,9 @@ var SimpleOpeningHours = /** @class */ (function () {
         var isOpen = false;
         times.forEach(function (time) {
             //TODO: times like 09:00+ are not supported here
-            var timedata = time.split('-');
-            if ((_this.compareTime(testtime, timedata[0]) != -1)
-                && (_this.compareTime(timedata[1], testtime) != -1)) {
+            var timedata = time.split("-");
+            if (_this.compareTime(testtime, timedata[0]) != -1 &&
+                _this.compareTime(timedata[1], testtime) != -1) {
                 isOpen = true;
             }
         });
@@ -63,22 +63,22 @@ var SimpleOpeningHours = /** @class */ (function () {
         }
         input = input.toLocaleLowerCase();
         input = input.trim();
-        input = input.replace(/ +(?= )/g, ''); //replace double spaces
-        input = input.replace(' -', '-');
-        input = input.replace('- ', '-');
-        input = input.replace(' :', ':');
-        input = input.replace(': ', ':');
-        input = input.replace(' ,', ',');
-        input = input.replace(', ', ',');
-        input = input.replace(' ;', ';');
-        input = input.replace('; ', ';');
+        input = input.replace(/ +(?= )/g, ""); //replace double spaces
+        input = input.replace(" -", "-");
+        input = input.replace("- ", "-");
+        input = input.replace(" :", ":");
+        input = input.replace(": ", ":");
+        input = input.replace(" ,", ",");
+        input = input.replace(", ", ",");
+        input = input.replace(" ;", ";");
+        input = input.replace("; ", ";");
         return input;
     };
     /**
      * Split on ;
      */
     SimpleOpeningHours.prototype.splitHard = function (inp) {
-        return inp.split(';');
+        return inp.split(";");
     };
     SimpleOpeningHours.prototype.parseHardPart = function (part) {
         var _this = this;
@@ -135,7 +135,7 @@ var SimpleOpeningHours = /** @class */ (function () {
         var _this = this;
         part = part.toLowerCase();
         var days = [];
-        var softparts = part.split(',');
+        var softparts = part.split(",");
         softparts.forEach(function (part) {
             var rangecount = (part.match(/\-/g) || []).length;
             if (rangecount == 0) {
@@ -172,7 +172,7 @@ var SimpleOpeningHours = /** @class */ (function () {
             fr: 5,
             sa: 6
         };
-        var rangeElements = range.split('-');
+        var rangeElements = range.split("-");
         var dayStart = def[rangeElements[0]];
         var dayEnd = def[rangeElements[1]];
         var numberRange = this.calcRange(dayStart, dayEnd, 6);
@@ -196,7 +196,7 @@ var SimpleOpeningHours = /** @class */ (function () {
         }
         var range = [min];
         var rangepoint = min;
-        while (rangepoint < ((min < max) ? max : maxval)) {
+        while (rangepoint < (min < max ? max : maxval)) {
             rangepoint++;
             range.push(rangepoint);
         }
@@ -230,9 +230,9 @@ var SimpleOpeningHours = /** @class */ (function () {
     SimpleOpeningHours.prototype.checkDay = function (inp) {
         var days = ["mo", "tu", "we", "th", "fr", "sa", "su", "ph"];
         if (inp.match(/\-/g)) {
-            var rangelements = inp.split('-');
-            if (days.indexOf(rangelements[0]) !== -1
-                && days.indexOf(rangelements[1]) !== -1) {
+            var rangelements = inp.split("-");
+            if (days.indexOf(rangelements[0]) !== -1 &&
+                days.indexOf(rangelements[1]) !== -1) {
                 return true;
             }
         }
@@ -250,8 +250,8 @@ var SimpleOpeningHours = /** @class */ (function () {
      * if time1 == time2 -> 0
      */
     SimpleOpeningHours.prototype.compareTime = function (time1, time2) {
-        var date1 = new Date('2016-01-01 ' + time1);
-        var date2 = new Date('2016-01-01 ' + time2);
+        var date1 = newDate("2016-01-01 " + time1);
+        var date2 = newDate("2016-01-01 " + time2);
         if (date1 > date2) {
             return 1;
         }
@@ -263,4 +263,15 @@ var SimpleOpeningHours = /** @class */ (function () {
     return SimpleOpeningHours;
 }());
 exports.SimpleOpeningHours = SimpleOpeningHours;
+// https://stackoverflow.com/questions/6427204/date-parsing-in-javascript-is-different-between-safari-and-chrome
+function newDate(value) {
+    var field = value.match(/^([+-]?\d{4}(?!\d\d\b))(?:-?(?:(0[1-9]|1[0-2])(?:-?([12]\d|0[1-9]|3[01]))?)(?:[T\s](?:(?:([01]\d|2[0-3])(?::?([0-5]\d))?|24\:?00)([.,]\d+(?!:))?)?(?::?([0-5]\d)(?:[.,](\d+))?)?([zZ]|([+-](?:[01]\d|2[0-3])):?([0-5]\d)?)?)?)?$/) || [];
+    var result = new Date(field[1], (field[2] - 1) | 0, field[3] || 1, field[4] | 0, field[5] | 0, field[7] | 0, field[8] | 0);
+    if (field[9]) {
+        result.setUTCMinutes(result.getUTCMinutes() -
+            result.getTimezoneOffset() -
+            (field[10] * 60 + +field[11] || 0));
+    }
+    return result;
+}
 //# sourceMappingURL=simple-opening-hours.js.map
